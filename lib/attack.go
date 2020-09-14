@@ -398,11 +398,13 @@ func (a *Attacker) hit(tr Targeter, name string) *Result {
 
 	if res.Body, err = ioutil.ReadAll(body); err != nil {
 		return &res
-	} else if _, err = io.Copy(ioutil.Discard, r.Body); err != nil {
+	}
+	discarded, err := io.Copy(ioutil.Discard, r.Body)
+	if err != nil {
 		return &res
 	}
 
-	res.BytesIn = uint64(len(res.Body))
+	res.BytesIn = uint64(len(res.Body)) + uint64(discarded)
 
 	if req.ContentLength != -1 {
 		res.BytesOut = uint64(req.ContentLength)
